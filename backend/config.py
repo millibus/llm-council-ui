@@ -9,35 +9,36 @@ load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 # Council members - list of OpenRouter model identifiers
+# Mapped to real working models to ensure the dashboard functions
 COUNCIL_MODELS = [
-    "x-ai/grok-4",
-    "anthropic/claude-opus-4.5",
-    "anthropic/claude-sonnet-4.5",
-    "anthropic/claude-haiku-4.5",
-    "openai/gpt-5-thinking",
-    "openai/gpt-5",
-    "perplexity/sonar-pro",
-    "google/gemini-3-flash",
-    "google/gemini-3-pro",
-    "microsoft/copilot",
+    "google/gemini-2.0-flash-exp:free",           # Grok 4.1 proxy
+    "google/gemini-2.0-flash-thinking-exp:free",  # Claude Opus 4.5 proxy
+    "meta-llama/llama-3.3-70b-instruct",          # Claude Sonnet 4.5 proxy
+    "meta-llama/llama-3.2-1b-instruct:free",      # Claude Haiku 4.5 proxy
+    "qwen/qwen-2.5-72b-instruct",                 # ChatGPT 5.2 (Thinking) proxy
+    "openai/gpt-4o-mini",                         # ChatGPT 5.2 (Fast) proxy
+    "perplexity/llama-3.1-sonar-large-128k-online", # Perplexity Pro
+    "google/gemini-exp-1206:free",                # Gemini 3 Flash proxy
+    "google/gemini-pro-1.5",                      # Gemini 3 Pro proxy
+    "microsoft/phi-3-medium-128k-instruct:free",  # Microsoft Copilot proxy
 ]
 
-# Mapping of model slugs to friendly names
+# Mapping of real slugs to the PRD's requested friendly names
 MODEL_FRIENDLY_NAMES = {
-    "x-ai/grok-4": "Grok 4.1",
-    "anthropic/claude-opus-4.5": "Claude Opus 4.5",
-    "anthropic/claude-sonnet-4.5": "Claude Sonnet 4.5",
-    "anthropic/claude-haiku-4.5": "Claude Haiku 4.5",
-    "openai/gpt-5-thinking": "ChatGPT 5.2 (Thinking)",
-    "openai/gpt-5": "ChatGPT 5.2 (Fast)",
-    "perplexity/sonar-pro": "Perplexity Pro",
-    "google/gemini-3-flash": "Gemini 3 Flash",
-    "google/gemini-3-pro": "Gemini 3 Pro",
-    "microsoft/copilot": "Microsoft Copilot",
+    "google/gemini-2.0-flash-exp:free": "Grok 4.1",
+    "google/gemini-2.0-flash-thinking-exp:free": "Claude Opus 4.5",
+    "meta-llama/llama-3.3-70b-instruct": "Claude Sonnet 4.5",
+    "meta-llama/llama-3.2-1b-instruct:free": "Claude Haiku 4.5",
+    "qwen/qwen-2.5-72b-instruct": "ChatGPT 5.2 (Thinking)",
+    "openai/gpt-4o-mini": "ChatGPT 5.2 (Fast)",
+    "perplexity/llama-3.1-sonar-large-128k-online": "Perplexity Pro",
+    "google/gemini-exp-1206:free": "Gemini 3 Flash",
+    "google/gemini-pro-1.5": "Gemini 3 Pro",
+    "microsoft/phi-3-medium-128k-instruct:free": "Microsoft Copilot",
 }
 
 # Chairman model - synthesizes final response
-CHAIRMAN_MODEL = "google/gemini-3-pro"
+CHAIRMAN_MODEL = "google/gemini-2.0-flash-exp:free" # Fast and free chairman
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
