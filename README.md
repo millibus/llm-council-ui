@@ -85,3 +85,23 @@ Then open http://localhost:5173 in your browser.
 - **Frontend:** React + Vite, react-markdown for rendering
 - **Storage:** JSON files in `data/conversations/`
 - **Package Management:** uv for Python, npm for JavaScript
+
+---
+
+## Project Status (Jan 11, 2026)
+
+**Last Update:** UI/UX Redesign Complete
+
+We have successfully implemented a comprehensive redesign of the LLM Council interface, moving to a modern "Copilot-style" dashboard.
+
+**Key Features Added:**
+- **Visual Leaderboard:** Stage 2 now includes a graphical bar chart for model rankings.
+- **Wins Tracker:** A persistent sidebar tracker showing which models win the most debates.
+- **Metrics:** Display of token usage and latency for every query.
+- **Model Config:** Updated to use a specific set of 10 models (mapped to working OpenRouter proxies).
+
+**Next Steps:**
+- Monitor for API stability with the free model proxies.
+- Potential future enhancements: Multi-turn conversation support (currently single-turn optimized).
+
+**Stopped at:** Completed PRD implementation. Codebase is stable and running.
