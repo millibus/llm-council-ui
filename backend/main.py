@@ -79,6 +79,12 @@ async def get_conversation(conversation_id: str):
     return conversation
 
 
+@app.get("/api/wins")
+async def get_wins():
+    """Get the win counts for all models."""
+    return storage.load_wins()
+
+
 @app.post("/api/conversations/{conversation_id}/message")
 async def send_message(conversation_id: str, request: SendMessageRequest):
     """
@@ -156,12 +162,34 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
             stage2_results, label_to_model = await stage2_collect_rankings(request.content, stage1_results)
             aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
+            
+            # Determine winner and increment win count
+            if aggregate_rankings:
+                winner = aggregate_rankings[0]["model"]
+                storage.increment_win(winner)
+                
             yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
 
             # Stage 3: Synthesize final answer
             yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
             stage3_result = await stage3_synthesize_final(request.content, stage1_results, stage2_results)
-            yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
+            
+            # Calculate token totals
+            stage1_tokens = sum(r.get('usage', {}).get('total_tokens', 0) for r in stage1_results)
+            stage2_tokens = sum(r.get('usage', {}).get('total_tokens', 0) for r in stage2_results)
+            stage3_tokens = stage3_result.get('usage', {}).get('total_tokens', 0)
+            total_tokens = stage1_tokens + stage2_tokens + stage3_tokens
+            
+            final_metadata = {
+                'token_usage': {
+                    'stage1': stage1_tokens,
+                    'stage2': stage2_tokens,
+                    'stage3': stage3_tokens,
+                    'total': total_tokens
+                }
+            }
+            
+            yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result, 'metadata': final_metadata})}\n\n"
 
             # Wait for title generation if it was started
             if title_task:

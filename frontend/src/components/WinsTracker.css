@@ -1,0 +1,45 @@
+.wins-tracker {
+  padding: 16px;
+  border-top: 1px solid #333;
+  margin-top: auto;
+}
+
+.wins-title {
+  color: #999;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.wins-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.win-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #ddd;
+}
+
+.win-model {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+  text-transform: capitalize;
+}
+
+.win-count {
+  background: #333;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  min-width: 24px;
+  text-align: center;
+}

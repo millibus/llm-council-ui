@@ -47,6 +47,17 @@ export const api = {
   },
 
   /**
+   * Get win counts.
+   */
+  async getWins() {
+    const response = await fetch(`${API_BASE}/api/wins`);
+    if (!response.ok) {
+      throw new Error('Failed to get wins');
+    }
+    return response.json();
+  },
+
+  /**
    * Send a message in a conversation.
    */
   async sendMessage(conversationId, content) {

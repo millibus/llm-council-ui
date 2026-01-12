@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
-from .config import DATA_DIR
+from .config import DATA_DIR, WINS_FILE
 
 
 def ensure_data_dir():
@@ -16,6 +16,38 @@ def ensure_data_dir():
 def get_conversation_path(conversation_id: str) -> str:
     """Get the file path for a conversation."""
     return os.path.join(DATA_DIR, f"{conversation_id}.json")
+
+
+def load_wins() -> Dict[str, int]:
+    """Load the win counts from storage."""
+    ensure_data_dir()
+    
+    if not os.path.exists(WINS_FILE):
+        return {}
+        
+    try:
+        with open(WINS_FILE, 'r') as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def save_wins(wins: Dict[str, int]):
+    """Save the win counts to storage."""
+    ensure_data_dir()
+    
+    with open(WINS_FILE, 'w') as f:
+        json.dump(wins, f, indent=2)
+
+
+def increment_win(model_slug: str):
+    """Increment the win count for a specific model."""
+    wins = load_wins()
+    
+    # Clean the slug (remove prefix if needed, but we stick to full slug for key)
+    wins[model_slug] = wins.get(model_slug, 0) + 1
+    
+    save_wins(wins)
 
 
 def create_conversation(conversation_id: str) -> Dict[str, Any]:

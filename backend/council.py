@@ -1,8 +1,9 @@
-"""3-stage LLM Council orchestration."""
+"3-stage LLM Council orchestration."
 
 from typing import List, Dict, Any, Tuple
 from .openrouter import query_models_parallel, query_model
 from .config import COUNCIL_MODELS, CHAIRMAN_MODEL
+from .storage import increment_win
 
 
 async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
@@ -13,7 +14,7 @@ async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
         user_query: The user's question
 
     Returns:
-        List of dicts with 'model' and 'response' keys
+        List of dicts with 'model', 'response', 'usage', 'latency' keys
     """
     messages = [{"role": "user", "content": user_query}]
 
@@ -26,7 +27,9 @@ async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
         if response is not None:  # Only include successful responses
             stage1_results.append({
                 "model": model,
-                "response": response.get('content', '')
+                "response": response.get('content', ''),
+                "usage": response.get('usage', {}),
+                "latency": response.get('latency', 0.0)
             })
 
     return stage1_results
@@ -106,7 +109,9 @@ Now provide your evaluation and ranking:"""
             stage2_results.append({
                 "model": model,
                 "ranking": full_text,
-                "parsed_ranking": parsed
+                "parsed_ranking": parsed,
+                "usage": response.get('usage', {}),
+                "latency": response.get('latency', 0.0)
             })
 
     return stage2_results, label_to_model
@@ -126,7 +131,7 @@ async def stage3_synthesize_final(
         stage2_results: Rankings from Stage 2
 
     Returns:
-        Dict with 'model' and 'response' keys
+        Dict with 'model', 'response', 'usage', 'latency' keys
     """
     # Build comprehensive context for chairman
     stage1_text = "\n\n".join([
@@ -165,12 +170,16 @@ Provide a clear, well-reasoned final answer that represents the council's collec
         # Fallback if chairman fails
         return {
             "model": CHAIRMAN_MODEL,
-            "response": "Error: Unable to generate final synthesis."
+            "response": "Error: Unable to generate final synthesis.",
+            "usage": {},
+            "latency": 0.0
         }
 
     return {
         "model": CHAIRMAN_MODEL,
-        "response": response.get('content', '')
+        "response": response.get('content', ''),
+        "usage": response.get('usage', {}),
+        "latency": response.get('latency', 0.0)
     }
 
 
@@ -220,18 +229,26 @@ def calculate_aggregate_rankings(
         label_to_model: Mapping from anonymous labels to model names
 
     Returns:
-        List of dicts with model name and average rank, sorted best to worst
+        List of dicts with model name, average rank, and first_place_count
     """
     from collections import defaultdict
 
     # Track positions for each model
     model_positions = defaultdict(list)
+    first_place_counts = defaultdict(int)
 
     for ranking in stage2_results:
         ranking_text = ranking['ranking']
 
         # Parse the ranking from the structured format
         parsed_ranking = parse_ranking_from_text(ranking_text)
+
+        if parsed_ranking:
+            # First one is the winner for this judge
+            winner_label = parsed_ranking[0]
+            if winner_label in label_to_model:
+                winner_model = label_to_model[winner_label]
+                first_place_counts[winner_model] += 1
 
         for position, label in enumerate(parsed_ranking, start=1):
             if label in label_to_model:
@@ -246,7 +263,8 @@ def calculate_aggregate_rankings(
             aggregate.append({
                 "model": model,
                 "average_rank": round(avg_rank, 2),
-                "rankings_count": len(positions)
+                "rankings_count": len(positions),
+                "first_place_count": first_place_counts.get(model, 0)
             })
 
     # Sort by average rank (lower is better)
@@ -274,8 +292,8 @@ Title:"""
 
     messages = [{"role": "user", "content": title_prompt}]
 
-    # Use gemini-2.5-flash for title generation (fast and cheap)
-    response = await query_model("google/gemini-2.5-flash", messages, timeout=30.0)
+    # Use gemini-3-flash for title generation (fast and cheap)
+    response = await query_model("google/gemini-3-flash", messages, timeout=30.0)
 
     if response is None:
         # Fallback to a generic title
@@ -319,6 +337,11 @@ async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
     # Calculate aggregate rankings
     aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
 
+    # Determine winner and increment win count
+    if aggregate_rankings:
+        winner = aggregate_rankings[0]["model"]
+        increment_win(winner)
+
     # Stage 3: Synthesize final answer
     stage3_result = await stage3_synthesize_final(
         user_query,
@@ -326,10 +349,27 @@ async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
         stage2_results
     )
 
+    # Calculate token totals for metadata
+    stage1_tokens = sum(
+        r.get('usage', {}).get('total_tokens', 0) for r in stage1_results
+    )
+    stage2_tokens = sum(
+        r.get('usage', {}).get('total_tokens', 0) for r in stage2_results
+    )
+    stage3_tokens = stage3_result.get('usage', {}).get('total_tokens', 0)
+    
+    total_tokens = stage1_tokens + stage2_tokens + stage3_tokens
+
     # Prepare metadata
     metadata = {
         "label_to_model": label_to_model,
-        "aggregate_rankings": aggregate_rankings
+        "aggregate_rankings": aggregate_rankings,
+        "token_usage": {
+            "stage1": stage1_tokens,
+            "stage2": stage2_tokens,
+            "stage3": stage3_tokens,
+            "total": total_tokens
+        }
     }
 
     return stage1_results, stage2_results, stage3_result, metadata

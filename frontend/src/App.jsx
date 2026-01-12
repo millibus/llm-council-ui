@@ -9,6 +9,7 @@ function App() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [winsUpdateTrigger, setWinsUpdateTrigger] = useState(0);
 
   // Load conversations on mount
   useEffect(() => {
@@ -145,9 +146,15 @@ function App() {
               const messages = [...prev.messages];
               const lastMsg = messages[messages.length - 1];
               lastMsg.stage3 = event.data;
+              // Update metadata with final token usage if provided
+              if (event.metadata) {
+                  lastMsg.metadata = { ...lastMsg.metadata, ...event.metadata };
+              }
               lastMsg.loading.stage3 = false;
               return { ...prev, messages };
             });
+            // Trigger wins update
+            setWinsUpdateTrigger(prev => prev + 1);
             break;
 
           case 'title_complete':
@@ -188,6 +195,7 @@ function App() {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        winsUpdateTrigger={winsUpdateTrigger}
       />
       <ChatInterface
         conversation={currentConversation}

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import './Sidebar.css';
+import WinsTracker from './WinsTracker';
 
 export default function Sidebar({
   conversations,
   currentConversationId,
   onSelectConversation,
   onNewConversation,
+  winsUpdateTrigger
 }) {
   return (
     <div className="sidebar">
@@ -38,6 +40,8 @@ export default function Sidebar({
           ))
         )}
       </div>
+      
+      <WinsTracker refreshTrigger={winsUpdateTrigger} />
     </div>
   );
 }

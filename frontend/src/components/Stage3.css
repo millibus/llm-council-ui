@@ -1,25 +1,66 @@
 .stage3 {
-  background: #f0fff0;
-  border-color: #c8e6c8;
+  background: #f0fff4; /* Light green tint for success/final */
+  border: 1px solid #c8e6c8;
+}
+
+.stage3-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.copy-btn {
+  background: #fff;
+  border: 1px solid #107C10;
+  color: #107C10;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover {
+  background: #107C10;
+  color: white;
 }
 
 .final-response {
   background: #ffffff;
-  padding: 20px;
+  padding: 24px;
   border-radius: 6px;
   border: 1px solid #c8e6c8;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .chairman-label {
-  color: #2d8a2d;
+  color: #107C10;
   font-size: 12px;
-  font-family: monospace;
-  margin-bottom: 12px;
-  font-weight: 600;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  margin-bottom: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .final-text {
-  color: #333;
-  line-height: 1.7;
+  color: #242424;
+  line-height: 1.6;
   font-size: 15px;
+}
+
+.session-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #c8e6c8;
+  display: flex;
+  gap: 24px;
+  font-size: 12px;
+  color: #666;
+}
+
+.footer-metric strong {
+  color: #333;
 }

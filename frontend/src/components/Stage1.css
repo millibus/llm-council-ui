@@ -1,65 +1,88 @@
-.stage {
-  margin: 24px 0;
-  padding: 20px;
-  background: #fafafa;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-}
-
-.stage-title {
-  margin: 0 0 16px 0;
-  color: #333;
-  font-size: 16px;
-  font-weight: 600;
+.stage1 {
+  /* Inherits from global .stage */
 }
 
 .tabs {
   display: flex;
+  overflow-x: auto;
   gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
   margin-bottom: 16px;
-  flex-wrap: wrap;
+  /* Hide scrollbar */
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab {
   padding: 8px 16px;
-  background: #ffffff;
-  border: 1px solid #d0d0d0;
-  border-radius: 6px 6px 0 0;
-  color: #666;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  white-space: nowrap;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .tab:hover {
-  background: #f0f0f0;
-  color: #333;
-  border-color: #4a90e2;
+  background: #eee;
 }
 
 .tab.active {
-  background: #ffffff;
-  color: #4a90e2;
-  border-color: #4a90e2;
-  border-bottom-color: #ffffff;
-  font-weight: 600;
+  background: #0078D4; /* Microsoft Blue */
+  color: white;
+  border-color: #0078D4;
 }
 
-.tab-content {
-  background: #ffffff;
-  padding: 16px;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
+.tab-latency {
+  font-size: 10px;
+  opacity: 0.8;
+  background: rgba(0,0,0,0.2);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.tab.active .tab-latency {
+  background: rgba(255,255,255,0.2);
+}
+
+.response-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #e0e0e0;
 }
 
 .model-name {
-  color: #888;
-  font-size: 12px;
-  margin-bottom: 12px;
-  font-family: monospace;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
 }
 
-.response-text {
-  color: #333;
-  line-height: 1.6;
+.model-metrics {
+  font-size: 12px;
+  color: #666;
+  display: flex;
+  gap: 16px;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metric-detail {
+  margin-left: 4px;
+  color: #999;
+  font-size: 11px;
 }
